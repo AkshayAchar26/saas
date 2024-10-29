@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
+import { error } from "console";
 
 const prisma = new PrismaClient();
 
@@ -28,7 +29,14 @@ export async function POST(request: NextRequest) {
       data: { isPublic: req.isPublic },
     });
 
-    return NextResponse.json(updatedVideo, { status: 200 });
+    if (updatedVideo.isPublic !== req.isPublic) {
+      return NextResponse.json(
+        { error: "Can't toggle privacy" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ status: 200 });
   } catch (error) {
     console.error("Error toggling privacy:", error);
     return NextResponse.json(
