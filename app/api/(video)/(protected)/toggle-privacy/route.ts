@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
-import { error } from "console";
 
 const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
+  const disconnectDb = true;
   try {
     const { userId } = auth();
     const req = await request.json();
@@ -20,7 +20,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (!video || video.userId !== userId) {
+    if (!video) {
+      return NextResponse.json({ error: "Video not found" }, { status: 404 });
+    }
+
+    if (video.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -44,6 +48,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    prisma.$disconnect();
+    if (disconnectDb) {
+      await prisma.$disconnect();
+    }
   }
 }
