@@ -35,5 +35,7 @@ export async function POST(request: NextRequest) {
       { error: "Error toggling privacy" },
       { status: 500 }
     );
+  } finally {
+    prisma.$disconnect();
   }
 }

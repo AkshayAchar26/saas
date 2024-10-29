@@ -91,5 +91,7 @@ export async function POST(request: NextRequest) {
       { error: "Error uploading video" },
       { status: 500 }
     );
+  } finally {
+    prisma.$disconnect();
   }
 }
